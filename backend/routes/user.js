@@ -5,6 +5,6 @@ const password = require("../middleware/password");
 const limiter = require("../middleware/limiter")
 
 router.post("/signup", password, userCtrl.signup);
-router.post("/login", limiter, userCtrl.login);
+router.post("/login", limiter.loginLimiter, userCtrl.login);
 
 module.exports = router;
