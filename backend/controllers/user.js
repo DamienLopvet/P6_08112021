@@ -4,10 +4,14 @@ const jwt = require("jsonwebtoken");
 require("dotenv").config();
 const cryptoJs = require("crypto-js");
 
+
 exports.signup = (req, res, next) => {
+  //encrypting email
   emailCrypted = cryptoJs
     .HmacSHA256(req.body.email, process.env.DCRYPTMAIL)
     .toString();
+
+  //hashing password
   bcrypt
     .hash(req.body.password, 10)
     .then((hash) => {
@@ -22,6 +26,8 @@ exports.signup = (req, res, next) => {
     })
     .catch((error) => res.status(500).json({ error }));
 };
+
+
 exports.login = (req, res, next) => {
   emailCrypted = cryptoJs
     .HmacSHA256(req.body.email, process.env.DCRYPTMAIL)

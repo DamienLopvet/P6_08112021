@@ -1,7 +1,14 @@
+
+// import http package
 const http = require('http');
+
+//import application
 const app = require('./app');
+
+//import environment variables module
 require('dotenv').config()
 
+// function that make a number or a string a valid port
 const normalizePort = val => {
   const port = parseInt(val, 10);
 
@@ -16,6 +23,7 @@ const normalizePort = val => {
 const port = normalizePort(process.env.PORT);
 app.set('port', port);
 
+//function to handle and fix errors
 const errorHandler = error => {
   if (error.syscall !== 'listen') {
     throw error;
@@ -36,8 +44,10 @@ const errorHandler = error => {
   }
 };
 
+//create server
 const server = http.createServer(app);
 
+//event listener, store the named chanel on witch server is executed
 server.on('error', errorHandler);
 server.on('listening', () => {
   const address = server.address();

@@ -6,6 +6,7 @@ const userSchema = mongoose.Schema({
   password: { type: String, required: true }
 });
 
+//check if a user that signup is already in the database
 userSchema.plugin(uniqueValidator);
 
 module.exports = mongoose.model('User', userSchema);    

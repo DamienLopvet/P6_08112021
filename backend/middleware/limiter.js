@@ -1,6 +1,7 @@
+require("dotenv").config();
+
 const rateLimiter = require("express-rate-limit");
 const nodemailer = require("nodemailer");
-require("dotenv").config();
 const transporter = nodemailer.createTransport({
   port: 465, 
   host: process.env.SMPTPATH,
@@ -27,7 +28,7 @@ const loginOverRequested = {
 
 exports.loginLimiter = new rateLimiter({
   windowMs: 60 * 60 * 1000, // 60 minutes
-  max: 5, // limit each IP to 3 requests per windowMs
+  max: 5, // limit each IP to 5 requests per windowMs
   message:
     "Vous avez essayé de vous connecter un trop grand nombre de fois, veuillez attendre 1 heures pour tenter un nouvel essai.",
 
@@ -36,12 +37,14 @@ exports.loginLimiter = new rateLimiter({
     },
 });
 
+
 exports.apiLimiter = rateLimiter({
   windowMs: 30 * 60 * 1000, // 30 minutes
   max: 50,
   message: "too much request, this is weird?! An email was sent to Admin ",
 
   onLimitReached: function () {
+    
     transporter.sendMail(ApiOverRequested);
   },
 });
