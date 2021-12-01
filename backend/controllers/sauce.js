@@ -164,7 +164,7 @@ exports.evaluateSauce = (req, res, next) => {
       }
       sauce
         .save()
-        .then(() => res.status(201).json({ message: "ok" }))
+        .then(() => res.status(201).json({ message: "ok préférence sauvegardées" }))
         .catch((error) => {
           res.status(400).json({ error: error });
         });

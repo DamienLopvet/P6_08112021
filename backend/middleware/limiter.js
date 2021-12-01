@@ -1,30 +1,6 @@
 require("dotenv").config();
-
+const mailer = require('../models/mailer')
 const rateLimiter = require("express-rate-limit");
-const nodemailer = require("nodemailer");
-const transporter = nodemailer.createTransport({
-  port: 465, 
-  host: process.env.SMPTPATH,
-  auth: {
-    user: process.env.EMAILSENDER,
-    pass: process.env.EMAILPASSWORD,
-  },
-  secure: true,
-});
-const ApiOverRequested = {
-  from: process.env.EMAILSENDER, // sender address
-  to: process.env.EMAILRECEIVER, // list of receivers
-  subject: "there are two many request beeing sended on your website",
-  text: "50 request have been made in one quarter of an hour, it's weird, you will have to check your logs to findout what happend it seem that you are beeing under attack !! Best regards . Webdeveloper ",
-  
-};
-const loginOverRequested = {
-  from: process.env.EMAILSENDER, // sender address
-  to: process.env.EMAILRECEIVER, // list of receivers
-  subject: "there are two many login request beeing sended on your website",
-  text: "5 request have been made in one hour, it's weird, you will have to check your logs to findout what happend it seem that you are beeing under attack !! Best regards . Webdeveloper ",
-  
-};
 
 exports.loginLimiter = new rateLimiter({
   windowMs: 60 * 60 * 1000, // 60 minutes
@@ -32,19 +8,16 @@ exports.loginLimiter = new rateLimiter({
   message:
     "Vous avez essayé de vous connecter un trop grand nombre de fois, veuillez attendre 1 heures pour tenter un nouvel essai.",
 
-    onLimitReached: function () {
-      transporter.sendMail(loginOverRequested);
-    },
+  onLimitReached: () => {
+mailer.transporter.sendMail(mailer.loginOverRequested)  },
 });
 
-
-exports.apiLimiter = rateLimiter({
+exports.apiLimiter = new rateLimiter({
   windowMs: 30 * 60 * 1000, // 30 minutes
   max: 50,
   message: "too much request, this is weird?! An email was sent to Admin ",
 
-  onLimitReached: function () {
-    
-    transporter.sendMail(ApiOverRequested);
-  },
+  onLimitReached: () => {
+    mailer.transporter.sendMail(mailer.apiOverRequested)
+      },
 });

@@ -37,7 +37,7 @@ app.use((req, res, next) => {
   next();
 });
 
-//settings headers
+//settings headers security config
 app.use(helmet());
 
 //parse request into json
