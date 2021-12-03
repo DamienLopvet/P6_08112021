@@ -1,6 +1,9 @@
 //import express
 const express = require("express");
 
+//import sanitizer
+const mongoSanitize = require('express-mongo-sanitize')
+
 //create an express app
 const app = express();
 
@@ -45,6 +48,9 @@ app.use(express.json());
 
 //static use of image datas
 app.use("/images", express.static(path.join(__dirname, "images")));
+
+//
+app.use(mongoSanitize())
 
 //set up router with frontend root 
 app.use("/api/sauces", saucesRoutes);
