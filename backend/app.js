@@ -53,6 +53,14 @@ app.use(
     action: "deny",
   })
 );
+app.use(
+  helmet.contentSecurityPolicy({
+    useDefaults: true,
+    directives: {
+      frameAncestors :["'none'"] 
+    },
+  })
+);
 
 //parse request into json
 app.use(express.json());
