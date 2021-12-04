@@ -14,7 +14,7 @@ mailer.transporter.sendMail(mailer.loginOverRequested)  },
 
 exports.apiLimiter = new rateLimiter({
   windowMs: 30 * 60 * 1000, // 30 minutes
-  max: 50,
+  max: 50 ,
   message: "too much request, this is weird?! An email was sent to Admin ",
 
   onLimitReached: () => {

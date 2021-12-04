@@ -2,7 +2,7 @@
 const express = require("express");
 
 //import sanitizer
-const mongoSanitize = require('express-mongo-sanitize')
+const mongoSanitize = require("express-mongo-sanitize");
 
 //create an express app
 const app = express();
@@ -17,7 +17,7 @@ const path = require("path");
 const saucesRoutes = require("./routes/sauce");
 const userRoutes = require("./routes/user");
 
-//import http header security config 
+//import http header security config
 const helmet = require("helmet");
 
 //import environment variables module
@@ -35,13 +35,24 @@ mongoose
 //resolve cors issues
 app.use((req, res, next) => {
   res.setHeader("Access-Control-Allow-Origin", "*");
-  res.setHeader("Access-Control-Allow-Headers","Origin, X-Requested-With, Content, Accept, Content-Type, Authorization");
-  res.setHeader("Access-Control-Allow-Methods","GET, POST, PUT, DELETE, PATCH, OPTIONS");
+  res.setHeader(
+    "Access-Control-Allow-Headers",
+    "Origin, X-Requested-With, Content, Accept, Content-Type, Authorization"
+  );
+  res.setHeader(
+    "Access-Control-Allow-Methods",
+    "GET, POST, PUT, DELETE, PATCH, OPTIONS"
+  );
   next();
 });
 
 //settings headers security config
 app.use(helmet());
+app.use(
+  helmet.frameguard({
+    action: "deny",
+  })
+);
 
 //parse request into json
 app.use(express.json());
@@ -49,12 +60,12 @@ app.use(express.json());
 //static use of image datas
 app.use("/images", express.static(path.join(__dirname, "images")));
 
-//
-app.use(mongoSanitize())
-
-//set up router with frontend root 
+//set up router with frontend root
 app.use("/api/sauces", saucesRoutes);
 app.use("/api/auth", userRoutes);
+
+//Remove $ or. from request to sendsanitizeddatas to DataBase
+app.use(mongoSanitize());
 
 //export app
 module.exports = app;
