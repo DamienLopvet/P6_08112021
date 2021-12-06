@@ -14,7 +14,7 @@ exports.apiOverRequested = {
   from: process.env.EMAILSENDER, // sender address
   to: process.env.EMAILRECEIVER, // list of receivers
   subject: "there are two many request beeing sended on your website",
-  text: "50 request have been made in one quarter of an hour, it's weird, you will have to check your logs to findout what happend it seem that you are beeing under attack !! Best regards . Webdeveloper ",
+  text: "100 request have been made in one quarter of an hour, it's weird, you will have to check your logs to findout what happend it seem that you are beeing under attack !! Best regards . Webdeveloper ",
 };
 exports.loginOverRequested = {
   from: process.env.EMAILSENDER, // sender address

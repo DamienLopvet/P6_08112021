@@ -61,6 +61,17 @@ app.use(
     },
   })
 );
+app.use(
+  helmet.dnsPrefetchControl({
+    allow: true,
+  })
+ );
+ app.use(
+  helmet.referrerPolicy({
+    policy: ["origin", "unsafe-url"],
+  })
+ );
+ 
 
 //parse request into json
 app.use(express.json());
@@ -68,12 +79,13 @@ app.use(express.json());
 //static use of image datas
 app.use("/images", express.static(path.join(__dirname, "images")));
 
+//Remove $ or. from request to sendsanitizeddatas to DataBase
+app.use(mongoSanitize());
+
 //set up router with frontend root
 app.use("/api/sauces", saucesRoutes);
 app.use("/api/auth", userRoutes);
 
-//Remove $ or. from request to sendsanitizeddatas to DataBase
-app.use(mongoSanitize());
 
 //export app
 module.exports = app;

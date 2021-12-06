@@ -4,8 +4,8 @@ const router = express.Router();
 
 const auth = require('../middleware/auth');
 const multer = require('../middleware/multer-config');
-const saucesCtrl = require('../controllers/sauce');
 const limiter = require('../middleware/limiter')
+const saucesCtrl = require('../controllers/sauce');
 
 router.post('/', auth, limiter.apiLimiter, multer, saucesCtrl.createSauce);
 router.post('/:id/like', auth, limiter.apiLimiter, saucesCtrl.evaluateSauce);

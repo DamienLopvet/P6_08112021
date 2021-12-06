@@ -7,6 +7,7 @@ exports.createSauce = (req, res, next) => {
   delete sauceObject._id;
   const sauce = new Sauce({
     ...sauceObject,
+    userId: req.token.userId,
     imageUrl: `${req.protocol}://${req.get("host")}/images/${
       req.file.filename
     }`,
@@ -35,26 +36,36 @@ exports.modifySauce = (req, res, next) => {
         }`,
       }
     : { ...req.body };
-  if (req.token.userId == sauceObject.userId) {
-    Sauce.updateOne(
-      { _id: req.params.id },
-      { ...sauceObject, _id: req.params.id }
-    )
-      .then(() => {
-        res.status(201).json({
-          message: "Sauce updated successfully!",
+  Sauce.findOne({
+    _id: req.params.id,
+  })
+    .then((sauce) => {
+      if (req.token.userId == sauce.userId) {
+        Sauce.updateOne(
+          { _id: req.params.id },
+          { ...sauceObject, _id: req.params.id, userId: req.token.userId }
+        )
+          .then(() => {
+            res.status(201).json({
+              message: "Sauce updated successfully!",
+            });
+          })
+          .catch((error) => {
+            res.status(400).json({
+              error: error,
+            });
+          });
+      } else {
+        res.status(401).json({
+          message: "unauthorized modification",
         });
-      })
-      .catch((error) => {
-        res.status(400).json({
-          error: error,
-        });
+      }
+    })
+    .catch((error) => {
+      res.status(500).json({
+        error: error,
       });
-  } else {
-    res.status(401).json({
-      message: "unauthorized modification",
     });
-  }
 };
 
 //delete
@@ -63,7 +74,7 @@ exports.deleteSauce = (req, res, next) => {
     .then((sauce) => {
       if (sauce.userId == req.token.userId) {
         const filename = sauce.imageUrl.split("/images/")[1];
-        fs.unlink(`images/${filename}`, () => {
+        fs.rm(`images/${filename}`, () => {
           Sauce.deleteOne({ _id: req.params.id })
             .then(() => res.status(200).json({ message: "Objet supprimé !" }))
             .catch((error) => res.status(400).json({ error }));
@@ -110,7 +121,7 @@ exports.evaluateSauce = (req, res, next) => {
   const userId = req.body.userId;
   const like = req.body.like;
   const sauceId = req.params.id;
-  
+  let error = null;
   Sauce.findOne({ _id: sauceId })
     .then((sauce) => {
       const userLike = sauce.usersLiked.includes(userId);
@@ -131,11 +142,11 @@ exports.evaluateSauce = (req, res, next) => {
 
         case 1:
           if (userLike) {
-            throw new Error("vous aimez déjà cette sauce !");
+            error = "vous aimez déjà cette sauce !";
           }
           if (userDislike) {
-            throw new Error(
-              "vous n'aimez pas cette sauce, veuillez d'abord annuler votre dislike");
+            error =
+              "vous n'aimez pas cette sauce, veuillez d'abord annuler votre dislike";
           }
           if (!userLike && !userDislike) {
             sauce.likes += 1;
@@ -150,11 +161,11 @@ exports.evaluateSauce = (req, res, next) => {
             sauce.usersDisliked.push(userId);
           }
           if (userDislike) {
-            throw new Error("vous n'aimez déjà pas cette sauce !");
+            error = "vous n'aimez déjà pas cette sauce !";
           }
           if (userLike) {
-            throw new Error(
-              "vous aimez cette sauce, veuillez d'abord annuler votre like");
+            error =
+              "vous aimez cette sauce, veuillez d'abord annuler votre like";
           }
 
           break;
@@ -162,9 +173,14 @@ exports.evaluateSauce = (req, res, next) => {
         default:
           return res.status(400).json({ message: "error, invalid request" });
       }
+      if (error != null) {
+        res.status(401).json({ error: error });
+      }
       sauce
         .save()
-        .then(() => res.status(201).json({ message: "ok préférence sauvegardées" }))
+        .then(() =>
+          res.status(201).json({ message: "ok préférence sauvegardées" })
+        )
         .catch((error) => {
           res.status(400).json({ error: error });
         });
